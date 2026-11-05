@@ -212,7 +212,7 @@ public class SudokuBoard implements ISudokuBoard {
      */
     @Override
     public boolean isValidMove(int row, int col, int value) {
-        throw new UnsupportedOperationException("Pendiente: validación");
+        return canPlace(board, row, col, value);
     }
 
     /**
@@ -220,7 +220,33 @@ public class SudokuBoard implements ISudokuBoard {
      */
     @Override
     public List<int[]> getConflictingCells() {
-        throw new UnsupportedOperationException("Pendiente: validación");
+        List<int[]> conflicts = new ArrayList<>();
+        for (int row = 0; row < SIZE; row++) {
+            for (int col = 0; col < SIZE; col++) {
+                int value = getValue(row, col);
+                if (value != EMPTY && !canPlace(board, row, col, value)) {
+                    conflicts.add(new int[]{row, col});
+                }
+            }
+        }
+        return conflicts;
+    }
+
+    /**
+     * Busca todas las celdas vacías del tablero del jugador.
+     *
+     * @return lista de posiciones {fila, columna} vacías
+     */
+    private List<int[]> getEmptyCells() {
+        List<int[]> emptyCells = new ArrayList<>();
+        for (int row = 0; row < SIZE; row++) {
+            for (int col = 0; col < SIZE; col++) {
+                if (getValue(row, col) == EMPTY) {
+                    emptyCells.add(new int[]{row, col});
+                }
+            }
+        }
+        return emptyCells;
     }
 
     /**
@@ -244,6 +270,6 @@ public class SudokuBoard implements ISudokuBoard {
      */
     @Override
     public boolean isSolved() {
-        throw new UnsupportedOperationException("Pendiente: validación");
+        return getEmptyCells().isEmpty() && getConflictingCells().isEmpty();
     }
 }

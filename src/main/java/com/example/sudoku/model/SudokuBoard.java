@@ -254,7 +254,42 @@ public class SudokuBoard implements ISudokuBoard {
      */
     @Override
     public int[] getHint() {
-        throw new UnsupportedOperationException("Pendiente: ayuda");
+        List<int[]> emptyCells = getEmptyCells();
+        if (remainingHints == 0 || emptyCells.size() <= 1) {
+            return null;
+        }
+
+        Collections.shuffle(emptyCells, random);
+        for (int[] cell : emptyCells) {
+            int value = findHintValue(cell[0], cell[1]);
+            if (value != EMPTY) {
+                remainingHints--;
+                return new int[]{cell[0], cell[1], value};
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Busca qué número sugerir para una celda vacía. Primero prueba el número
+     * de la solución; si ese choca con lo que el jugador ya escribió, busca
+     * otro número del 1 al 6 que no se repita.
+     *
+     * @param row fila, de 0 a 5
+     * @param col columna, de 0 a 5
+     * @return número sugerido, o {@link #EMPTY} si ninguno sirve
+     */
+    private int findHintValue(int row, int col) {
+        int correctValue = solution.get(row).get(col);
+        if (isValidMove(row, col, correctValue)) {
+            return correctValue;
+        }
+        for (int value = 1; value <= SIZE; value++) {
+            if (isValidMove(row, col, value)) {
+                return value;
+            }
+        }
+        return EMPTY;
     }
 
     /**

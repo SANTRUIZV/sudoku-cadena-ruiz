@@ -1,0 +1,14 @@
+module com.example.sudoku {
+    requires javafx.controls;
+    requires javafx.fxml;
+
+    opens com.example.sudoku to javafx.fxml;
+    exports com.example.sudoku;
+
+    // Agregar cada línea cuando el paquete tenga su primera clase
+    // (Java no deja exportar un paquete vacío):
+    // exports com.example.sudoku.model;               -> commit S2 (ISudokuBoard)
+    // exports com.example.sudoku.view;                -> commit J3 (GameStage)
+    // opens com.example.sudoku.controller to javafx.fxml;  -> commit J2 (GameController)
+    // exports com.example.sudoku.controller;          -> commit J2
+}

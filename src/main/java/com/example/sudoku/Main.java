@@ -1,9 +1,10 @@
 package com.example.sudoku;
 
+import com.example.sudoku.view.GameStage;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 /**
  * Punto de entrada de la aplicación JavaFX del Sudoku 6x6.
@@ -17,13 +18,11 @@ public class Main extends Application {
     /**
      * Abre la ventana principal del juego.
      *
-     * @param stage ventana que entrega JavaFX
+     * @param stage ventana que entrega JavaFX (no se usa, el juego usa {@link GameStage})
+     * @throws IOException si no se puede cargar la vista
      */
     @Override
-    public void start(Stage stage) {
-        // Temporal: en el commit J3 se cambia por GameStage.getInstance().show()
-        stage.setTitle("Sudoku 6x6");
-        stage.setScene(new Scene(new BorderPane(), 600, 650));
-        stage.show();
+    public void start(Stage stage) throws IOException {
+        GameStage.getInstance().show();
     }
 }

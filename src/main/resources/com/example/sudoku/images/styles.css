@@ -1,0 +1,85 @@
+/* Paleta: fondo gris azulado, azul oscuro para textos y botones, verde para la ayuda */
+
+.root-pane {
+    -fx-background-color: #f2f4f8;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #23395b;
+}
+
+.hints-label,
+.message-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #4a5a75;
+}
+
+/* Cada bloque de 2x3: el fondo oscuro se ve como líneas entre las celdas */
+.block {
+    -fx-background-color: #23395b;
+    -fx-padding: 2;
+    -fx-hgap: 2;
+    -fx-vgap: 2;
+}
+
+/* Cada celda del tablero */
+.cell {
+    -fx-pref-width: 56px;
+    -fx-pref-height: 56px;
+    -fx-alignment: center;
+    -fx-font-size: 22px;
+    -fx-text-fill: #23395b;
+    -fx-background-color: white;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+    -fx-cursor: hand;
+}
+
+.cell:hover {
+    -fx-background-color: #eef3fb;
+}
+
+/* Celda que el jugador seleccionó con el mouse */
+.selected-cell,
+.selected-cell:hover {
+    -fx-background-color: #d6e4fa;
+}
+
+/* Celdas que vienen con el tablero */
+.fixed-cell,
+.fixed-cell:hover {
+    -fx-background-color: #e1e6ef;
+    -fx-font-weight: bold;
+    -fx-cursor: default;
+}
+
+.main-button,
+.help-button {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-pref-width: 140px;
+    -fx-pref-height: 40px;
+    -fx-cursor: hand;
+}
+
+.main-button {
+    -fx-background-color: #23395b;
+}
+
+.main-button:hover {
+    -fx-background-color: #34507d;
+}
+
+.help-button {
+    -fx-background-color: #2e8b57;
+}
+
+.help-button:hover {
+    -fx-background-color: #37a467;
+}

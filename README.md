@@ -30,11 +30,7 @@ Requisitos: JDK 17 o superior y Maven (IntelliJ IDEA ya trae Maven).
   mvn clean javafx:run
   ```
 
-Para generar la documentación Javadoc:
-
-```bash
-mvn javadoc:javadoc
-```
+Para generar la documentación Javadoc en IntelliJ: **Tools → Generate JavaDoc...**, elegir la carpeta de salida `javadoc/` (está en el `.gitignore`) y en *Other command line arguments* poner `-encoding UTF-8`.
 
 ## Estructura (Modelo-Vista-Controlador)
 

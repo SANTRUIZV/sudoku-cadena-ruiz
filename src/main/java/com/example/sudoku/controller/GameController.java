@@ -1,6 +1,7 @@
 package com.example.sudoku.controller;
 
 import com.example.sudoku.model.ISudokuBoard;
+import com.example.sudoku.model.SudokuBoard;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -40,6 +41,12 @@ public class GameController {
     /** Celdas del tablero: cells[fila][columna]. */
     private final TextField[][] cells = new TextField[ISudokuBoard.SIZE][ISudokuBoard.SIZE];
 
+    /** Modelo del juego. */
+    private final ISudokuBoard board = new SudokuBoard();
+
+    /** Celda que el jugador tiene seleccionada, o null si no hay ninguna. */
+    private TextField selectedCell;
+
     /**
      * JavaFX lo llama automáticamente después de cargar el FXML.
      * Crea las celdas del tablero.
@@ -71,6 +78,7 @@ public class GameController {
                         TextField cell = new TextField();
                         cell.getStyleClass().add("cell");
                         cell.setEditable(false);
+                        addCellEvents(cell, row, col);
                         cells[row][col] = cell;
                         block.add(cell, c, r);
                     }
@@ -78,6 +86,59 @@ public class GameController {
                 boardGrid.add(block, blockCol, blockRow);
             }
         }
+    }
+
+    /**
+     * Agrega a una celda el evento de mouse (seleccionarla) y el de teclado
+     * (escribir o borrar un número).
+     *
+     * @param cell celda de la vista
+     * @param row  fila de la celda
+     * @param col  columna de la celda
+     */
+    private void addCellEvents(TextField cell, int row, int col) {
+        cell.setOnMouseClicked(event -> selectCell(cell));
+
+        cell.setOnKeyPressed(new CellKeyAdapter() {
+            @Override
+            public void onNumberTyped(int number) {
+                if (board.isFixed(row, col)) {
+                    return;
+                }
+                board.setValue(row, col, number);
+                cell.setText(String.valueOf(number));
+                lblMessage.setText("");
+            }
+
+            @Override
+            public void onDeletePressed() {
+                if (board.isFixed(row, col)) {
+                    return;
+                }
+                board.setValue(row, col, ISudokuBoard.EMPTY);
+                cell.setText("");
+                lblMessage.setText("");
+            }
+
+            @Override
+            public void onInvalidKey() {
+                lblMessage.setText("Solo puedes escribir números del 1 al 6");
+            }
+        });
+    }
+
+    /**
+     * Marca una celda como seleccionada y le quita la marca a la anterior.
+     *
+     * @param cell celda que el jugador hizo clic
+     */
+    private void selectCell(TextField cell) {
+        if (selectedCell != null) {
+            selectedCell.getStyleClass().remove("selected-cell");
+        }
+        selectedCell = cell;
+        selectedCell.getStyleClass().add("selected-cell");
+        selectedCell.requestFocus();
     }
 
     /**

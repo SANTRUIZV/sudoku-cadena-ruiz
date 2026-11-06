@@ -9,6 +9,6 @@ module com.example.sudoku {
     // (Java no deja exportar un paquete vacío):
     exports com.example.sudoku.model;
     // exports com.example.sudoku.view;                -> commit J3 (GameStage)
-    // opens com.example.sudoku.controller to javafx.fxml;  -> commit J2 (GameController)
-    // exports com.example.sudoku.controller;          -> commit J2
+    opens com.example.sudoku.controller to javafx.fxml;
+    exports com.example.sudoku.controller;
 }

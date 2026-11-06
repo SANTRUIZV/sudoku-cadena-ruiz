@@ -37,6 +37,8 @@
     -fx-border-color: transparent;
     -fx-border-width: 2;
     -fx-cursor: hand;
+    -fx-highlight-fill: transparent;
+    -fx-highlight-text-fill: #23395b;
 }
 
 .cell:hover {
@@ -82,4 +84,33 @@
 
 .help-button:hover {
     -fx-background-color: #37a467;
+}
+
+/* Celda con un número repetido en su fila, columna o bloque */
+.error-cell,
+.error-cell:hover,
+.error-cell:focused {
+    -fx-border-color: #d64545;
+    -fx-text-fill: #c0392b;
+    -fx-highlight-text-fill: #c0392b;
+}
+
+/* Celda donde la ayuda sugiere un número (se ve en verde, sin escribirlo) */
+.hint-cell,
+.hint-cell:hover,
+.hint-cell:focused {
+    -fx-background-color: #dff3e6;
+    -fx-prompt-text-fill: #2e8b57;
+}
+
+/* Mensaje de error debajo del título */
+.message-label.error-message {
+    -fx-text-fill: #c0392b;
+    -fx-font-weight: bold;
+}
+
+/* Tablero antes de iniciar el juego: celdas claras en vez de semitransparentes */
+.cell:disabled {
+    -fx-opacity: 1;
+    -fx-background-color: #f7f8fb;
 }

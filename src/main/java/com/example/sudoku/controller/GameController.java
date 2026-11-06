@@ -11,6 +11,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.util.List;
+
 /**
  * Controlador de la ventana del juego (game-view.fxml).
  * Recibe los eventos de la vista y se comunica con el modelo.
@@ -51,6 +53,9 @@ public class GameController {
 
     /** Celda que el jugador tiene seleccionada, o null si no hay ninguna. */
     private TextField selectedCell;
+
+    /** Celda donde se está mostrando la sugerencia de ayuda, o null si no hay. */
+    private TextField hintCell;
 
     /**
      * JavaFX lo llama automáticamente después de cargar el FXML.
@@ -115,7 +120,7 @@ public class GameController {
                 }
                 board.setValue(row, col, number);
                 cell.setText(String.valueOf(number));
-                lblMessage.setText("");
+                afterCellChanged(cell);
             }
 
             @Override
@@ -125,12 +130,12 @@ public class GameController {
                 }
                 board.setValue(row, col, ISudokuBoard.EMPTY);
                 cell.setText("");
-                lblMessage.setText("");
+                afterCellChanged(cell);
             }
 
             @Override
             public void onInvalidKey() {
-                lblMessage.setText("Solo puedes escribir números del 1 al 6");
+                showMessage("Solo puedes escribir números del 1 al 6", true);
             }
         });
     }
@@ -169,7 +174,7 @@ public class GameController {
         refreshBoard();
         boardGrid.setDisable(false);
         btnHelp.setDisable(false);
-        lblMessage.setText("Haz clic en una celda y escribe un número del 1 al 6");
+        showMessage("Haz clic en una celda y escribe un número del 1 al 6", false);
     }
 
     /**
@@ -183,12 +188,13 @@ public class GameController {
                 int value = board.getValue(row, col);
                 cell.setText(value == ISudokuBoard.EMPTY ? "" : String.valueOf(value));
 
-                cell.getStyleClass().removeAll("fixed-cell", "selected-cell");
+                cell.getStyleClass().removeAll("fixed-cell", "selected-cell", "error-cell");
                 if (board.isFixed(row, col)) {
                     cell.getStyleClass().add("fixed-cell");
                 }
             }
         }
+        clearHint();
         selectedCell = null;
         lblHints.setText("Ayudas restantes: " + board.getRemainingHints());
     }
@@ -200,6 +206,105 @@ public class GameController {
      */
     @FXML
     private void handleHelp(ActionEvent event) {
-        // Se completa en el commit "Resalta errores y muestra la ayuda"
+        int[] hint = board.getHint();
+        if (hint == null) {
+            String reason = board.getRemainingHints() == 0
+                    ? "Ya usaste todas las ayudas de esta partida."
+                    : "La ayuda no puede llenar la última celda. ¡Esa te toca a ti!";
+            alertBox.showInfoBox("Ayuda", "No hay ayuda disponible", reason);
+            return;
+        }
+
+        clearHint();
+        int row = hint[0];
+        int col = hint[1];
+        int value = hint[2];
+        hintCell = cells[row][col];
+        hintCell.setPromptText(String.valueOf(value));
+        hintCell.getStyleClass().add("hint-cell");
+
+        lblHints.setText("Ayudas restantes: " + board.getRemainingHints());
+        showMessage("Sugerencia: prueba el " + value + " en la celda verde", false);
+    }
+
+    /**
+     * Quita la sugerencia de ayuda que se esté mostrando, si hay una.
+     */
+    private void clearHint() {
+        if (hintCell != null) {
+            hintCell.setPromptText("");
+            hintCell.getStyleClass().remove("hint-cell");
+            hintCell = null;
+        }
+    }
+
+    /**
+     * Se llama cada vez que el jugador escribe o borra un número.
+     * Quita la sugerencia si estaba en esa celda, revisa errores y revisa si ganó.
+     *
+     * @param cell celda que cambió
+     */
+    private void afterCellChanged(TextField cell) {
+        if (cell == hintCell) {
+            clearHint();
+        }
+        boolean hasErrors = highlightErrors();
+        if (!hasErrors) {
+            showMessage("", false);
+            checkVictory();
+        }
+    }
+
+    /**
+     * Pinta con borde rojo las celdas que tienen números repetidos en su fila,
+     * columna o bloque, y muestra un mensaje de error. La validación se hace
+     * cada vez que cambia una celda (en tiempo real).
+     *
+     * @return true si hay al menos un error
+     */
+    private boolean highlightErrors() {
+        for (int row = 0; row < ISudokuBoard.SIZE; row++) {
+            for (int col = 0; col < ISudokuBoard.SIZE; col++) {
+                cells[row][col].getStyleClass().remove("error-cell");
+            }
+        }
+
+        List<int[]> conflicts = board.getConflictingCells();
+        for (int[] position : conflicts) {
+            cells[position[0]][position[1]].getStyleClass().add("error-cell");
+        }
+
+        if (!conflicts.isEmpty()) {
+            showMessage("Hay números repetidos en una fila, columna o bloque", true);
+        }
+        return !conflicts.isEmpty();
+    }
+
+    /**
+     * Si el tablero está completo y sin errores, felicita al jugador
+     * y bloquea el tablero hasta que inicie otro juego.
+     */
+    private void checkVictory() {
+        if (!board.isSolved()) {
+            return;
+        }
+        boardGrid.setDisable(true);
+        btnHelp.setDisable(true);
+        showMessage("¡Completaste el Sudoku!", false);
+        alertBox.showInfoBox("¡Ganaste!", "¡Felicitaciones!", "Completaste el Sudoku sin errores.");
+    }
+
+    /**
+     * Muestra un mensaje debajo del título. Los errores se ven en rojo.
+     *
+     * @param text    mensaje a mostrar
+     * @param isError true si es un mensaje de error
+     */
+    private void showMessage(String text, boolean isError) {
+        lblMessage.setText(text);
+        lblMessage.getStyleClass().remove("error-message");
+        if (isError) {
+            lblMessage.getStyleClass().add("error-message");
+        }
     }
 }

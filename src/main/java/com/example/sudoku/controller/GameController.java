@@ -1,5 +1,7 @@
 package com.example.sudoku.controller;
 
+import com.example.sudoku.model.AlertBox;
+import com.example.sudoku.model.IAlertBox;
 import com.example.sudoku.model.ISudokuBoard;
 import com.example.sudoku.model.SudokuBoard;
 import javafx.event.ActionEvent;
@@ -44,16 +46,22 @@ public class GameController {
     /** Modelo del juego. */
     private final ISudokuBoard board = new SudokuBoard();
 
+    /** Muestra las alertas (confirmación, información y error). */
+    private final IAlertBox alertBox = new AlertBox();
+
     /** Celda que el jugador tiene seleccionada, o null si no hay ninguna. */
     private TextField selectedCell;
 
     /**
      * JavaFX lo llama automáticamente después de cargar el FXML.
-     * Crea las celdas del tablero.
+     * Crea las celdas del tablero. El tablero y el botón de ayuda quedan
+     * desactivados hasta que el jugador inicie un juego.
      */
     @FXML
     public void initialize() {
         createBoardCells();
+        boardGrid.setDisable(true);
+        btnHelp.setDisable(true);
     }
 
     /**
@@ -148,7 +156,41 @@ public class GameController {
      */
     @FXML
     private void handleNewGame(ActionEvent event) {
-        // Se completa en el commit "Conecta nuevo juego con confirmación"
+        boolean accepted = alertBox.showConfirmBox(
+                "Nuevo juego",
+                "¿Quieres iniciar un juego nuevo?",
+                "Se borrará el tablero actual."
+        );
+        if (!accepted) {
+            return;
+        }
+
+        board.generateNewBoard();
+        refreshBoard();
+        boardGrid.setDisable(false);
+        btnHelp.setDisable(false);
+        lblMessage.setText("Haz clic en una celda y escribe un número del 1 al 6");
+    }
+
+    /**
+     * Copia el estado del modelo a la vista: el número de cada celda,
+     * qué celdas son fijas y cuántas ayudas quedan.
+     */
+    private void refreshBoard() {
+        for (int row = 0; row < ISudokuBoard.SIZE; row++) {
+            for (int col = 0; col < ISudokuBoard.SIZE; col++) {
+                TextField cell = cells[row][col];
+                int value = board.getValue(row, col);
+                cell.setText(value == ISudokuBoard.EMPTY ? "" : String.valueOf(value));
+
+                cell.getStyleClass().removeAll("fixed-cell", "selected-cell");
+                if (board.isFixed(row, col)) {
+                    cell.getStyleClass().add("fixed-cell");
+                }
+            }
+        }
+        selectedCell = null;
+        lblHints.setText("Ayudas restantes: " + board.getRemainingHints());
     }
 
     /**
